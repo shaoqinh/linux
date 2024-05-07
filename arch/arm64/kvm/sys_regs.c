@@ -1430,6 +1430,14 @@ static s64 kvm_arm64_ftr_safe_value(u32 id, const struct arm64_ftr_bits *ftrp,
 		if (kvm_ftr.shift == ID_DFR0_EL1_PerfMon_SHIFT)
 			kvm_ftr.type = FTR_LOWER_SAFE;
 		break;
+	case SYS_ID_AA64PFR0_EL1:
+		if (kvm_ftr.shift == ID_AA64PFR0_EL1_RAS_SHIFT)
+			kvm_ftr.type = FTR_LOWER_SAFE;
+		break;
+	case SYS_ID_AA64PFR1_EL1:
+		if (kvm_ftr.shift == ID_AA64PFR1_EL1_BT_SHIFT)
+			kvm_ftr.type = FTR_LOWER_SAFE;
+		break;
 	}
 
 	return arm64_ftr_safe_value(&kvm_ftr, new, cur);
@@ -1741,6 +1749,27 @@ static int set_id_aa64dfr0_el1(struct kvm_vcpu *vcpu,
 	 */
 	if (debugver < ID_AA64DFR0_EL1_DebugVer_IMP)
 		return -EINVAL;
+
+	return set_id_reg(vcpu, rd, val);
+}
+
+static int set_id_aa64pfr0_el1(struct kvm_vcpu *vcpu,
+			       const struct sys_reg_desc *rd,
+			       u64 val)
+{
+	// u64 id_val = read_sanitised_ftr_reg(SYS_ID_AA64PFR0_EL1);
+
+	/* TODO: Add the correct checking about RAS. */
+	/* Is checking in kvm_arm64_ftr_safe_value right? */
+
+	return set_id_reg(vcpu, rd, val);
+}
+
+static int set_id_aa64pfr1_el1(struct kvm_vcpu *vcpu,
+			       const struct sys_reg_desc *rd,
+			       u64 val)
+{
+	/* TODO: Add the correct checking about BT, Branch Target. */
 
 	return set_id_reg(vcpu, rd, val);
 }
@@ -2283,15 +2312,20 @@ static const struct sys_reg_desc sys_reg_descs[] = {
 	{ SYS_DESC(SYS_ID_AA64PFR0_EL1),
 	  .access = access_id_reg,
 	  .get_user = get_id_reg,
-	  .set_user = set_id_reg,
+	  .set_user = set_id_aa64pfr0_el1,
 	  .reset = read_sanitised_id_aa64pfr0_el1,
 	  .val = ~(ID_AA64PFR0_EL1_AMU |
 		   ID_AA64PFR0_EL1_MPAM |
 		   ID_AA64PFR0_EL1_SVE |
-		   ID_AA64PFR0_EL1_RAS |
 		   ID_AA64PFR0_EL1_GIC |
 		   ID_AA64PFR0_EL1_AdvSIMD |
 		   ID_AA64PFR0_EL1_FP), },
+	{ SYS_DESC(SYS_ID_AA64PFR1_EL1),
+	  .access = access_id_reg,
+	  .get_user = get_id_reg,
+	  .set_user = set_id_aa64pfr1_el1,
+	  .reset = kvm_read_sanitised_id_reg,
+	  .val = ~(ID_AA64PFR1_EL1_BT), },
 	ID_SANITISED(ID_AA64PFR1_EL1),
 	ID_UNALLOCATED(4,2),
 	ID_UNALLOCATED(4,3),
