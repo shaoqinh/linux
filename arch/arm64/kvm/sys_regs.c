@@ -1418,6 +1418,12 @@ static s64 kvm_arm64_ftr_safe_value(u32 id, const struct arm64_ftr_bits *ftrp,
 	switch (id) {
 	case SYS_ID_AA64DFR0_EL1:
 		switch (kvm_ftr.shift) {
+		case ID_AA64DFR0_EL1_TraceFilt_SHIFT:
+			kvm_ftr.type = FTR_LOWER_SAFE;
+			break;
+		case ID_AA64DFR0_EL1_BRPs_SHIFT:
+			kvm_ftr.type = FTR_LOWER_SAFE;
+			break;
 		case ID_AA64DFR0_EL1_PMUVer_SHIFT:
 			kvm_ftr.type = FTR_LOWER_SAFE;
 			break;
@@ -2340,7 +2346,9 @@ static const struct sys_reg_desc sys_reg_descs[] = {
 	  .get_user = get_id_reg,
 	  .set_user = set_id_aa64dfr0_el1,
 	  .reset = read_sanitised_id_aa64dfr0_el1,
-	  .val = ID_AA64DFR0_EL1_PMUVer_MASK |
+	  .val = ID_AA64DFR0_EL1_TraceFilt_MASK |
+		 ID_AA64DFR0_EL1_BRPs_MASK |
+		 ID_AA64DFR0_EL1_PMUVer_MASK |
 		 ID_AA64DFR0_EL1_DebugVer_MASK, },
 	ID_SANITISED(ID_AA64DFR1_EL1),
 	ID_UNALLOCATED(5,2),
