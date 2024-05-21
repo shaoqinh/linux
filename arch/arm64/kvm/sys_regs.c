@@ -1531,6 +1531,12 @@ static u64 __kvm_read_sanitised_id_reg(const struct kvm_vcpu *vcpu,
 			val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_MTE);
 
 		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_SME);
+		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_RNDR_trap);
+		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_NMI);
+		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_GCS);
+		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_THE);
+		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_DF2);
+		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR1_EL1_PFAR);
 		break;
 	case SYS_ID_AA64ISAR1_EL1:
 		if (!vcpu_has_ptrauth(vcpu))
@@ -2306,7 +2312,12 @@ static const struct sys_reg_desc sys_reg_descs[] = {
 		   ID_AA64PFR0_EL1_GIC |
 		   ID_AA64PFR0_EL1_AdvSIMD |
 		   ID_AA64PFR0_EL1_FP), },
-	ID_SANITISED(ID_AA64PFR1_EL1),
+	ID_WRITABLE(ID_AA64PFR1_EL1, ~(ID_AA64PFR1_EL1_MTEX |
+				       ID_AA64PFR1_EL1_MTE_frac |
+				       ID_AA64PFR1_EL1_RES0 |
+				       ID_AA64PFR1_EL1_MPAM_frac |
+				       ID_AA64PFR1_EL1_RAS_frac |
+				       ID_AA64PFR1_EL1_MTE)),
 	ID_UNALLOCATED(4,2),
 	ID_UNALLOCATED(4,3),
 	ID_WRITABLE(ID_AA64ZFR0_EL1, ~ID_AA64ZFR0_EL1_RES0),
